@@ -7,7 +7,8 @@ var prettyBytes = require('pretty-bytes')
 var throttle = require('throttleit')
 var thunky = require('thunky')
 var uploadElement = require('upload-element')
-var WebTorrent = require('webtorrent')
+var WebTorrent = require('webtorrent-ilp')
+var crypto = require('crypto')
 var xhr = require('xhr')
 
 var util = require('./util')
@@ -40,10 +41,35 @@ var getClient = thunky(function (cb) {
   })
 
   function createClient (rtcConfig) {
+    var address = document.getElementById('walletAddress').value
+    var password = document.getElementById('walletPassword').value
+    var pricePerGigabyte = document.getElementById('pricePerGigabyte').value
+    if (!address || !password) {
+      throw new Error('Must supply wallet credentials to start torrenting')
+    }
+    var pricePerByte = parseFloat(pricePerGigabyte) / 1000000
+    var publicKey = crypto.randomBytes(32).toString('base64')
+    util.log('Our publicKey is: ' + publicKey.slice(0, 8))
     var client = window.client = new WebTorrent({
       tracker: {
         rtcConfig: rtcConfig
-      }
+      },
+      address: address,
+      password: password,
+      price: pricePerByte,
+      publicKey: publicKey
+    })
+    client.on('wallet_ready', function () {
+      util.log('Payment client connected')
+    })
+    client.on('incoming_payment', function (details) {
+      util.log('Peer ' + details.peerPublicKey.slice(0, 8) + ' paid us ' + details.amount)
+    })
+    client.on('outgoing_payment', function (details) {
+      util.log('We paid ' + details.peerPublicKey.slice(0, 8) + ' ' + details.amount)
+    })
+    client.on('license', function (torrentHash, license) {
+      util.log('We paid for a license for torrent: ' + torrentHash + ' license: ' + JSON.stringify(license, null, 2))
     })
     client.on('warning', util.warning)
     client.on('error', util.error)
@@ -51,8 +77,12 @@ var getClient = thunky(function (cb) {
   }
 })
 
-// For performance, create the client immediately
-getClient(function () {})
+// Only get the client once the user has entered their wallet credentials
+debug('Waiting for user to enter wallet credentials')
+document.getElementById('ilpDetails').addEventListener('submit', function (e) {
+  e.preventDefault()
+  getClient(function () {})
+})
 
 // Seed via upload input element
 var upload = document.querySelector('input[name=upload]')
@@ -66,7 +96,7 @@ uploadElement(upload, function (err, files) {
 dragDrop('body', onFiles)
 
 // Download via input element
-document.querySelector('form').addEventListener('submit', function (e) {
+document.getElementById('torrentSelector').addEventListener('submit', function (e) {
   e.preventDefault()
   downloadTorrent(document.querySelector('form input[name=torrentId]').value.trim())
 })

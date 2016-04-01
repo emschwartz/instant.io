@@ -30,7 +30,7 @@
     "twilio": "^2.1.0",
     "unlimited": "^1.1.0",
     "upload-element": "^1.0.1",
-    "webtorrent": "0.x",
+    "webtorrent-ilp": "https://github.com/emschwartz/webtorrent-ilp.git",
     "xhr": "^2.0.0"
   },
   "devDependencies": {
