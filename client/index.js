@@ -73,7 +73,7 @@ var getClient = thunky(function (cb) {
     })
     client.on('torrent', function (torrent) {
       torrent.on('done', function () {
-        util.log('Summary: Paid ' + torrent.totalCost.toFixed(4) + ' to seeders and ' + (torrent.totalCost + torrent.licenseCost).toFixed(4) + ' to the creator for the license')
+        util.log('Summary: Paid ' + torrent.totalCost.toFixed(4) + ' to seeders and ' + (torrent.totalCost.plus(torrent.licenseCost).toFixed(4)) + ' to the creator for the license')
       })
     })
     client.on('warning', util.warning)
