@@ -47,7 +47,7 @@ var getClient = thunky(function (cb) {
     if (!address || !password) {
       throw new Error('Must supply wallet credentials to start torrenting')
     }
-    var pricePerByte = parseFloat(pricePerGigabyte) / 1000000
+    var pricePerByte = (parseFloat(pricePerGigabyte) / 1000000).toFixed(15)
     var publicKey = crypto.randomBytes(32).toString('base64')
     util.log('Our publicKey is: ' + publicKey.slice(0, 8))
     var client = window.client = new WebTorrent({
@@ -70,6 +70,11 @@ var getClient = thunky(function (cb) {
     })
     client.on('license', function (torrentHash, license) {
       util.log('We paid for a license for torrent: ' + torrentHash + ' license: ' + JSON.stringify(license, null, 2))
+    })
+    client.on('torrent', function (torrent) {
+      torrent.on('done', function () {
+        util.log('Summary: Paid ' + torrent.totalCost.toFixed(4) + ' to seeders and ' + (torrent.totalCost + torrent.licenseCost).toFixed(4) + ' to the creator for the license')
+      })
     })
     client.on('warning', util.warning)
     client.on('error', util.error)
