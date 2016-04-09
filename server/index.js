@@ -180,7 +180,7 @@ if (httpsServer) {
 parallel(tasks, function (err) {
   if (err) throw err
   debug('listening on port %s', JSON.stringify(config.ports))
-  downgrade()
+  // downgrade()
 })
 
 function error (err) {
