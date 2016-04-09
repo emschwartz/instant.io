@@ -53,7 +53,7 @@ app.use(compress())
 
 app.use(function (req, res, next) {
   // Force SSL
-  if (config.isProd && req.protocol !== 'https') {
+  if (config.isProd && req.headers['x-forwarded-proto'] !== 'https') {
     return res.redirect('https://' + (req.hostname || 'instant.io') + req.url)
   }
 
@@ -180,7 +180,9 @@ if (httpsServer) {
 parallel(tasks, function (err) {
   if (err) throw err
   debug('listening on port %s', JSON.stringify(config.ports))
-  // downgrade()
+  if (process.platform === 'linux' && process.env.NODE_ENV === 'production' && !process.env.DYNO) {
+    downgrade()
+  }
 })
 
 function error (err) {
