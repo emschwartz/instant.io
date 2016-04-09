@@ -1,7 +1,4 @@
 node_modules
 
-secret/*
-!secret/index-sample.js
-
 static/main.css
 static/bundle.js
