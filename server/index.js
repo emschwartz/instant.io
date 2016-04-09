@@ -108,7 +108,9 @@ var iceServers
 var twilioClient
 try {
   twilioClient = twilio(secret.twilio.accountSid, secret.twilio.authToken)
-} catch (err) {}
+} catch (err) {
+  debug('error creating twilioClient', err)
+}
 
 function updateIceServers () {
   twilioClient.tokens.create({}, function (err, token) {
@@ -116,6 +118,8 @@ function updateIceServers () {
     if (!token.ice_servers) {
       return error(new Error('twilio response ' + token + ' missing ice_servers'))
     }
+
+    debug('got ice servers: ', token.ice_servers)
 
     iceServers = token.ice_servers
       .filter(function (server) {
