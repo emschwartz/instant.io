@@ -58,7 +58,7 @@
   "scripts": {
     "build": "npm run build-css && npm run build-js",
     "build-css": "stylus -u nib css/main.styl -o static/ -c",
-    "build-js": "browserify client > static/bundle.js",
+    "build-js": "browserify --ignore-missing client > static/bundle.js",
     "secret-download": "rsync -a -O -v --delete -e \"ssh -p 44444\" feross@instant.io:\"/home/feross/www/instant.io/secret/\" secret/",
     "secret-upload": "rsync -a -O -v --delete -e \"ssh -p 44444\" secret/ feross@instant.io:/home/feross/www/instant.io/secret/",
     "size": "npm run build-js && cat static/bundle.js | gzip | wc -c",
@@ -67,6 +67,6 @@
     "update-authors": "./bin/update-authors.sh",
     "watch": "npm run watch-css & npm run watch-js & DEBUG=instant* nodemon server",
     "watch-css": "stylus -u nib css/main.styl -o static/ -w",
-    "watch-js": "watchify client -o static/bundle.js -dv"
+    "watch-js": "watchify --ignore-missing client -o static/bundle.js -dv"
   }
 }
