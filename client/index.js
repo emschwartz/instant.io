@@ -68,20 +68,9 @@ var getClient = thunky(function (cb) {
     client.on('outgoing_payment', function (details) {
       util.log('We paid ' + details.peerPublicKey.slice(0, 8) + ' ' + details.amount)
     })
-    client.on('license', function (torrentHash, license) {
-      util.log('We paid for a license for torrent: ' + torrentHash)
-      util.log('')
-      util.log(' License details: ')
-      util.log('   license_type: ' + license.license_type)
-      util.log('   creator_account:' + license.creator_account)
-      util.log('   creator_public_key:' + license.creator_public_key)
-      util.log('   price_per_minute:' + license.price_per_minute)
-      util.log('   signature:' + license.signature)
-      util.log('')
-    })
     client.on('torrent', function (torrent) {
       torrent.on('done', function () {
-        util.log('Summary: Paid ' + torrent.totalCost.toFixed(4) + ' to seeders and ' + (torrent.totalCost.plus(torrent.licenseCost).toFixed(4)) + ' to the creator for the license')
+        util.log('Summary: Paid ' + torrent.totalCost.toFixed(4) + ' to seeders')
       })
     })
     client.on('warning', util.warning)
